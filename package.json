@@ -48,6 +48,7 @@
     "@types/jasmine": "~2.8.8",
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "~8.9.4",
+    "axios": "^0.19.0",
     "codelyzer": "~4.5.0",
     "jasmine": "^3.4.0",
     "jasmine-console-reporter": "^3.1.0",
@@ -64,10 +65,17 @@
     "tslint": "~5.11.0",
     "typescript": "~3.1.1"
   },
-  "nyc":{
+  "nyc": {
     "report-dir": "./spec/istanbul/report",
     "temp-dir": "./spec/istanbul",
-    "reporter": [ "text", "text-summary", "html" ],
-    "exclude": [ "spec/**/", "server/.spec.js" ]
+    "reporter": [
+      "text",
+      "text-summary",
+      "html"
+    ],
+    "exclude": [
+      "spec/**/",
+      "server/.spec.js"
+    ]
   }
 }

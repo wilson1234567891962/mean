@@ -1,17 +1,19 @@
-const express = require("express");
-const logger = require("morgan");
-const http = require("http");
-const PinsRouter = require("./routes/pins");
-const Pins = require("./models/Pins");
-const request = require("request");
+const express = require('express');
+const logger = require('morgan');
+const http = require('http');
+const PinsRouter = require('./routes/pins');
+const Pins = require('./models/Pins');
+const request = require('request');
+const axios = require('axios');
 const app = express();
+var requestPromise = require('request-promise-native');
 
-app.use(logger("dev"));
+app.use(logger('dev'));
 app.use(express.json());
-app.use("/api", PinsRouter.router);
-app.set("port", 3000);
+app.use('/api', PinsRouter.router);
+app.set('port', 3000);
 
-describe("Testing Router", () => {
+describe('Testing Router', () => {
   let server;
 
   beforeAll(() => {
@@ -23,15 +25,15 @@ describe("Testing Router", () => {
     server.close();
   });
 
-  describe("GET", () => {
+  describe('GET', () => {
     // GET 200
-    it("200 and find pin", done => {
+    it('200 and find pin', done => {
       const data = [{ id: 1 }];
-      spyOn(Pins, "find").and.callFake(callBack => {
+      spyOn(Pins, 'find').and.callFake(callBack => {
         callBack(false, data);
       });
 
-      request.get("http://localhost:3000/api", (error, response, body) => {
+      request.get('http://localhost:3000/api', (error, response, body) => {
         expect(response.statusCode).toBe(200);
         expect(JSON.parse(response.body)).toEqual([{ id: 1 }]);
         done();
@@ -39,39 +41,51 @@ describe("Testing Router", () => {
     });
 
     // GET 500
-    it("Error 500", done => {
+    it('500', done => {
       const data = [{ id: 1 }];
-      spyOn(Pins, "find").and.callFake(callBack => {
+      spyOn(Pins, 'find').and.callFake(callBack => {
         callBack(true, data);
       });
 
-      request.get("http://localhost:3000/api", (error, response, body) => {
+      request.get('http://localhost:3000/api', (error, response, body) => {
         expect(response.statusCode).toBe(500);
         done();
       });
     });
+  });
 
-    // GET findById
-    it("findById", done => {
-      spyOn(Pins, "findById").and.callFake((id, callBack) => {
-        callBack(false, id);
+  describe('POST', () => {
+    it('200', done => {
+      const post = [
+        {
+          title: 'Platzi',
+          author: 'Platzi',
+          description: 'Platzi rules',
+          percentage: 0,
+          tags: [],
+          assets: [
+            {
+              title: 'Platzi',
+              description: 'description',
+              readed: false,
+              url: 'http://platzi.com'
+            }
+          ]
+        }
+      ];
+
+      spyOn(Pins, 'create').and.callFake((pin, callBack) => {
+        callBack(false, {});
       });
 
-      request.get("http://localhost:3000/api/1", (error, response, body) => {
-        expect(response.statusCode).toBe(200);
-        expect(JSON.parse(response.body)).toEqual("1");
-        done();
-      });
-    });
+      spyOn(requestPromise, 'get').and.returnValue(
+        Promise.resolve('<title>Platzi</title><meta name="description" content="Platzi rules">')
+      );
 
-     // GET findById error
-     it("findById", done => {
-      spyOn(Pins, "findById").and.callFake((id, callBack) => {
-        callBack(true, id);
-      });
+      const assets = [{ url: 'http://platzi.com' }];
 
-      request.get("http://localhost:3000/api/1", (error, response, body) => {
-        expect(response.statusCode).toBe(500);
+      axios.post('http://localhost:3000/api', { title: 'title', author: 'author', description: 'description', assets }).then(res => {
+        expect(res.status).toBe(200);
         done();
       });
     });
